@@ -13,7 +13,8 @@ struct MomentsView: View {
     @State private var showCreateMoment = false
     @Query(sort: \Moment.timestamp)
     private var moments: [Moment]
-
+    
+    static let offsetAmount: CGFloat = 70.0
 
     var body: some View {
         NavigationStack {
@@ -41,15 +42,28 @@ struct MomentsView: View {
                     }
                 }
             }
+            .defaultScrollAnchor(.bottom, for: .initialOffset)
+            .defaultScrollAnchor(.bottom, for: .sizeChanges)
+            .defaultScrollAnchor(.top, for: .alignment)
             .navigationTitle("Grateful Moments")
         }
     }
     private var pathItems: some View {
-        ForEach(moments) {moment in
+        ForEach(moments.enumerated(), id: \.0) { index, moment in
             NavigationLink {
                 MomentDetailView(moment: moment)
             } label: {
-                Text(moment.title)
+                if moment == moments.last {
+                    MomentHexagonView(moment: moment, layout: .large)
+                } else {
+                    MomentHexagonView(moment: moment)
+                        .offset(x: sin(Double(index) * .pi / 2) * Self.offsetAmount)
+                }
+            }
+            .scrollTransition { content, phase in
+                content
+                    .opacity(phase.isIdentity ? 1 : 0)
+                    .scaleEffect(phase.isIdentity ? 1 : 0.8)
             }
         }
     }
@@ -64,4 +78,6 @@ struct MomentsView: View {
 
 #Preview("No mements") {
     MomentsView().modelContainer(for: [Moment.self])
+        .environment(DataContainer())
+
 }

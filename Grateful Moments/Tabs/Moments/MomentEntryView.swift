@@ -54,6 +54,7 @@ struct MomentEntryView: View {
                         dataContainer.context.insert(newMoment)
                         do {
                             try dataContainer.context.save()
+                            dismiss()
                         } catch {
                             // Don't Dismiss
                         }
